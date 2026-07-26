@@ -344,34 +344,13 @@ php artisan make:migration create_scholarship_field_of_study_table
 ### 5. Contrôleurs — Admin (back-office, CRUD complet)
 
 ```bash
-php artisan make:controller Api/Admin/ScholarshipController --api --model=Scholarship
-php artisan make:controller Api/Admin/StudyLevelController --api --model=StudyLevel
-php artisan make:controller Api/Admin/ScholarshipTypeController --api --model=ScholarshipType
-php artisan make:controller Api/Admin/FieldOfStudyController --api --model=FieldOfStudy
-php artisan make:controller Api/Admin/CountryController --api --model=Country
-php artisan make:controller Api/Admin/OrganizationController --api --model=Organization
-php artisan make:controller Api/Admin/PostController --api --model=Post
-php artisan make:controller Api/Admin/PartnerController --api --model=Partner
-php artisan make:controller Api/Admin/ServiceController --api --model=Service
-php artisan make:controller Api/Admin/ProductController --api --model=Product
-php artisan make:controller Api/Admin/UserController --api --model=User
-php artisan make:controller Api/Admin/DashboardController
-php artisan make:controller Api/Admin/StatsController
+
 ```
 
 ### 6. Contrôleurs — Public (appli mobile)
 
 ```bash
-php artisan make:controller Api/Public/ScholarshipController --api --model=Scholarship
-php artisan make:controller Api/Public/PostController --api --model=Post
-php artisan make:controller Api/Public/PartnerController --api --model=Partner
-php artisan make:controller Api/Public/ServiceController --api --model=Service
-php artisan make:controller Api/Public/ProductController --api --model=Product
-php artisan make:controller Api/Public/CommentController --api --model=Comment
-php artisan make:controller Api/Public/LikeController
-php artisan make:controller Api/Public/SavedScholarshipController
-php artisan make:controller Api/Public/SearchController
-php artisan make:controller Api/Public/ProfileController
+
 ```
 
 ### 7. Authentification
@@ -384,60 +363,13 @@ php artisan make:controller Api/Auth/PasswordResetController
 php artisan make:controller Api/Auth/LogoutController
 ```
 
-### 8. Requests, Resources, Policies, Middleware
-
-```bash
-php artisan make:request Scholarship/StoreScholarshipRequest
-php artisan make:request Scholarship/UpdateScholarshipRequest
-php artisan make:request Post/StorePostRequest
-php artisan make:request Post/UpdatePostRequest
-php artisan make:request Auth/RegisterRequest
-php artisan make:request Auth/LoginRequest
-php artisan make:request Auth/VerifyOtpRequest
-php artisan make:request Auth/ResetPasswordRequest
-
-php artisan make:resource ScholarshipResource
-php artisan make:resource ScholarshipDetailResource
-php artisan make:resource PostResource
-php artisan make:resource PartnerResource
-php artisan make:resource ServiceResource
-php artisan make:resource ProductResource
-php artisan make:resource CommentResource
-php artisan make:resource UserResource
 
 php artisan make:policy ScholarshipPolicy --model=Scholarship
 php artisan make:policy PostPolicy --model=Post
 php artisan make:policy ServicePolicy --model=Service
 php artisan make:policy ProductPolicy --model=Product
 
-php artisan make:middleware EnsureUserHasRole
-php artisan make:middleware EnsureEmailIsVerifiedApi
-php artisan make:middleware ThrottleOtpRequests
-```
 
-### 9. Mail & notifications
-
-```bash
-php artisan make:mail OtpMail --markdown=mail.otp-code
-php artisan make:mail WelcomeMail --markdown=mail.welcome
-```
-
-### 10. Seeders
-
-```bash
-php artisan make:seeder CountrySeeder
-php artisan make:seeder StudyLevelSeeder
-php artisan make:seeder ScholarshipTypeSeeder
-php artisan make:seeder FieldOfStudySeeder
-php artisan make:seeder AdminUserSeeder
-php artisan make:seeder DemoScholarshipSeeder
-```
-
-### 11. Commande planifiée (purge des OTP expirés)
-
-```bash
-php artisan make:command PruneExpiredOtpCodes
-```
 
 ### 12. Finalisation
 
@@ -782,5 +714,6 @@ Route::prefix('admin')->group(function () {
 php artisan db:seed
 ```
 
-#   b o u r s e - b a c k  
+#   b o u r s e - b a c k 
+ 
  
