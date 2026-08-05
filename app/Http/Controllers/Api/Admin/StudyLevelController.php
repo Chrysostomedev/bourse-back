@@ -13,7 +13,7 @@ class StudyLevelController extends Controller
      */
     public function index()
     {
-        //
+        return StudyLevel::all();
     }
 
     /**

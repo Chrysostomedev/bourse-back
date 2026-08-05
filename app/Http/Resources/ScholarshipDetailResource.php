@@ -34,7 +34,7 @@ class ScholarshipDetailResource extends JsonResource
             'is_featured' => $this->is_featured,
             'views_count' => $this->views_count,
 
-            'study_levels' => StudyLevelResource::collection($this->whenLoaded('studyLevels')),
+            'study_levels' => new StudyLevelResource($this->whenLoaded('studyLevel')),
             'fields_of_study' => FieldOfStudyResource::collection($this->whenLoaded('fieldsOfStudy')),
 
             'intakes' => $this->whenLoaded('intakes', fn () => $this->intakes->map(fn ($intake) => [

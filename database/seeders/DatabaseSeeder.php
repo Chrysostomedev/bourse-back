@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             FieldOfStudySeeder::class,
             AdminUserSeeder::class,
             DemoScholarshipSeeder::class,
+            PostSeeder::class,  // ← Nouveau : ajoute les posts de test
         ]);
     }
 }

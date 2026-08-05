@@ -17,7 +17,7 @@ class StoreScholarshipRequest extends FormRequest
             'title' => ['required', 'string', 'max:180'],
 
             'organism_name' => ['required', 'string', 'max:150'],
-            'organism_logo' => ['nullable', 'image', 'max:2048'], // 2 Mo max
+            'organism_logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5 Mo max
 
             'country_id' => ['nullable', 'exists:countries,id'],
             'scholarship_type_id' => ['nullable', 'exists:scholarship_types,id'],
@@ -33,7 +33,7 @@ class StoreScholarshipRequest extends FormRequest
             'additional_info.*' => ['string', 'max:500'],
 
             'official_link' => ['nullable', 'url', 'max:255'],
-            'cover_image' => ['nullable', 'image', 'max:4096'], // 4 Mo max
+            'cover_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5 Mo max
 
             'status' => ['required', 'in:brouillon,publie,archive'],
             'is_featured' => ['boolean'],

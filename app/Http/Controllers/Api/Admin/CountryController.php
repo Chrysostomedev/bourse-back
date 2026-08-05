@@ -11,9 +11,13 @@ class CountryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Country::query();
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        return $query->paginate($request->get('per_page', 10));
     }
 
     /**
@@ -21,7 +25,13 @@ class CountryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code_iso2' => 'required|string|size:2|unique:countries,code_iso2',
+            'flag_emoji' => 'nullable|string|max:8',
+        ]);
+        $country = Country::create($validated);
+        return response()->json($country, 201);
     }
 
     /**
@@ -29,7 +39,7 @@ class CountryController extends Controller
      */
     public function show(Country $country)
     {
-        //
+        return response()->json($country);
     }
 
     /**
@@ -37,7 +47,13 @@ class CountryController extends Controller
      */
     public function update(Request $request, Country $country)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code_iso2' => 'required|string|size:2|unique:countries,code_iso2,' . $country->id,
+            'flag_emoji' => 'nullable|string|max:8',
+        ]);
+        $country->update($validated);
+        return response()->json($country);
     }
 
     /**
@@ -45,6 +61,7 @@ class CountryController extends Controller
      */
     public function destroy(Country $country)
     {
-        //
+        $country->delete();
+        return response()->json(['message' => 'Pays supprimé']);
     }
 }

@@ -23,7 +23,7 @@ class ServiceOfferingRequest extends FormRequest
             'kind' => ['required', 'in:coaching,formation,dossier'],
             'description' => ['required', 'string'],
             'price' => ['required', 'integer', 'min:0'], // FCFA, 0 = gratuit
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5 Mo max
             'is_active' => ['boolean'],
         ];
     }

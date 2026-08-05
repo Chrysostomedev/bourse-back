@@ -13,7 +13,7 @@ class ScholarshipTypeController extends Controller
      */
     public function index()
     {
-        //
+        return ScholarshipType::all();
     }
 
     /**

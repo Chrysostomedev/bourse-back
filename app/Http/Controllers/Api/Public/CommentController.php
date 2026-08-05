@@ -41,6 +41,30 @@ class CommentController extends Controller
         return CommentResource::collection($comments);
     }
 
+    /**
+     * GET /posts/{postId}/comments
+     * Récupère les commentaires d'un post spécifique (route mobile)
+     */
+    public function indexByPost(Request $request, int $postId)
+    {
+        // ✅ Vérifier que le post existe (retourne 404 si non)
+        Post::findOrFail($postId);
+
+        $comments = Comment::query()
+            ->where('commentable_type', Post::class)
+            ->where('commentable_id', $postId)
+            ->whereNull('parent_id')
+            ->with(['user', 'replies.user'])
+            ->latest()
+            ->paginate(20);
+
+        return CommentResource::collection($comments);
+    }
+
+    /**
+     * POST /comments
+     * Crée un commentaire (route générique)
+     */
     public function store(StoreCommentRequest $request)
     {
         $comment = $this->commentService->store($request->validated(), $request->user());
@@ -48,6 +72,33 @@ class CommentController extends Controller
         return new CommentResource($comment->load('user'));
     }
 
+    /**
+     * POST /posts/{postId}/comments
+     * Crée un commentaire sur un post spécifique (route mobile)
+     */
+    public function storeByPost(Request $request, int $postId)
+    {
+        // Vérifier que le post existe
+        $post = Post::findOrFail($postId);
+
+        // Valider et créer le commentaire
+        $validated = $request->validate([
+            'content' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $comment = $this->commentService->store([
+            'commentable_type' => Post::class,
+            'commentable_id' => $postId,
+            'content' => $validated['content'],
+        ], $request->user());
+
+        return new CommentResource($comment->load('user'));
+    }
+
+    /**
+     * DELETE /comments/{comment}
+     * Supprime un commentaire
+     */
     public function destroy(Request $request, Comment $comment)
     {
         // Peut lever une ValidationException (422) si l'utilisateur

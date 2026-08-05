@@ -15,7 +15,7 @@ class PartnerRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:150'],
-            'logo' => ['nullable', 'image', 'max:2048'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5 Mo max
             'website' => ['nullable', 'url', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'is_featured' => ['boolean'],

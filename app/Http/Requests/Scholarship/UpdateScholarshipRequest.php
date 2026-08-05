@@ -20,7 +20,7 @@ class UpdateScholarshipRequest extends FormRequest
             // Sur update, on ne renvoie un fichier QUE si l'utilisateur
             // veut remplacer l'image existante — sinon on garde l'ancienne
             // (voir ScholarshipService::update()).
-            'organism_logo' => ['nullable', 'image', 'max:2048'],
+            'organism_logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5 Mo max
 
             'country_id' => ['nullable', 'exists:countries,id'],
             'scholarship_type_id' => ['nullable', 'exists:scholarship_types,id'],
@@ -35,7 +35,7 @@ class UpdateScholarshipRequest extends FormRequest
             'additional_info.*' => ['string', 'max:500'],
 
             'official_link' => ['nullable', 'url', 'max:255'],
-            'cover_image' => ['nullable', 'image', 'max:4096'],
+            'cover_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
 
             'status' => ['required', 'in:brouillon,publie,archive'],
             'is_featured' => ['boolean'],

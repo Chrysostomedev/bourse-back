@@ -24,7 +24,7 @@ class OtpMail extends Mailable
         };
 
         return $this->subject($subject)
-            ->markdown('mail.otp-code')
+            ->view('mail.otp-code')
             ->with(['code' => $this->code]);
     }
 }

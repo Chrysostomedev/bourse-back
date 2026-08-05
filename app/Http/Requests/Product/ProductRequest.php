@@ -15,17 +15,10 @@ class ProductRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:150'],
-            'category' => ['required', 'in:ebook,guide_pdf,modele_lettre,autre'],
-            'description' => ['nullable', 'string'],
+            'category' => ['required', 'in:electronique,accessoires,livres,autre'],
+            'description' => ['nullable', 'string', 'max:1000'],
             'price' => ['required', 'integer', 'min:0'],
-            'cover_image' => ['nullable', 'image', 'max:2048'],
-            // Fichier à héberger (PDF...) OU lien externe. Pas de
-            // required_without ici : sur une mise à jour, l'admin ne
-            // renvoie souvent ni l'un ni l'autre (il garde l'existant) —
-            // la contrainte "au moins un des deux" est vérifiée dans
-            // ProductService::create() uniquement, pas ici.
-            'file' => ['nullable', 'file', 'mimes:pdf,epub', 'max:10240'],
-            'external_link' => ['nullable', 'url', 'max:255'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5 Mo max
             'is_active' => ['boolean'],
         ];
     }

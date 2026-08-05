@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Scholarship extends Model
 {
@@ -16,6 +17,7 @@ class Scholarship extends Model
         'organism_name',
         'organism_logo',
         'country_id',
+        'study_level_id',          // ← ajouté
         'scholarship_type_id',
         'funding_type',
         'objective',
@@ -40,9 +42,19 @@ class Scholarship extends Model
         return $this->belongsTo(Country::class);
     }
 
+    public function studyLevel(): BelongsTo
+    {
+        return $this->belongsTo(StudyLevel::class);
+    }
+
     public function scholarshipType(): BelongsTo
     {
         return $this->belongsTo(ScholarshipType::class);
+    }
+
+    public function intakes(): HasMany
+    {
+        return $this->hasMany(ScholarshipIntake::class);
     }
 
     public function creator(): BelongsTo

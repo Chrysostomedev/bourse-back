@@ -13,7 +13,7 @@ class FieldOfStudyController extends Controller
      */
     public function index()
     {
-        //
+        return FieldOfStudy::all();
     }
 
     /**

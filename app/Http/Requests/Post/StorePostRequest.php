@@ -17,7 +17,7 @@ class StorePostRequest extends FormRequest
             'title' => ['required', 'string', 'max:180'],
             'excerpt' => ['nullable', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'cover_image' => ['nullable', 'image', 'max:4096'],
+            'cover_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5 Mo max
             // Lien externe (YouTube...) OU vidéo hébergée : on valide
             // juste que c'est une URL, le stockage d'un fichier vidéo
             // se ferait via un endpoint dédié si besoin plus tard.

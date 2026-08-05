@@ -14,7 +14,14 @@ class PostController extends Controller
         $posts = Post::query()
             ->where('status', 'publie')
             ->with('author')
-            ->withCount(['likes', 'comments'])
+            ->withCount([
+                'likes' => function ($query) {
+                    $query->where('likeable_type', 'post');
+                },
+                'comments' => function ($query) {
+                    $query->where('commentable_type', 'post')->whereNull('parent_id');
+                }
+            ])
             ->latest('published_at')
             ->paginate(15);
 
@@ -28,7 +35,14 @@ class PostController extends Controller
             ->where('status', 'publie')
             ->where('slug', $slug)
             ->with('author')
-            ->withCount(['likes', 'comments'])
+            ->withCount([
+                'likes' => function ($query) {
+                    $query->where('likeable_type', 'post');
+                },
+                'comments' => function ($query) {
+                    $query->where('commentable_type', 'post')->whereNull('parent_id');
+                }
+            ])
             ->firstOrFail();
 
         $post->increment('views_count');

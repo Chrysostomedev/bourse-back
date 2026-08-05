@@ -1,0 +1,98 @@
+services:
+  # PHP Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bourse_web
+    restart: always
+    volumes:
+      - .:/var/www
+    networks:
+      - ciplus_network
+
+  # Nginx Web Server
+  web:
+    image: nginx:alpine
+    container_name: ciplus_web
+    restart: always
+    ports:
+      - "8001:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+    networks:
+      - ciplus_network
+
+  # Database
+  db:
+    image: mariadb:10.11
+    container_name: ciplus_container_bd
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: ciplus
+      MARIADB_DATABASE: ciplus_bd
+    ports:
+      - "3307:3306"
+    volumes:
+      - ciplus_volume_bd:/var/lib/mysql
+    networks:
+      - ciplus_network
+
+  # Queue Worker — traite les notifications en arrière-plan
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ciplus_queue
+    restart: always
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=60
+    volumes:
+      - .:/var/www
+    depends_on:
+      - app
+      - db
+    networks:
+      - ciplus_network
+
+  # Scheduler — exécute les crons Laravel (rappels, SLA, etc.)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ciplus_scheduler
+    restart: always
+    command: sh -c "while true; do php artisan schedule:run; sleep 60; done"
+    volumes:
+      - .:/var/www
+    depends_on:
+      - app
+      - db
+    networks:
+      - ciplus_network
+
+  # PHPMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: ciplus_phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 512M
+    ports:
+      - "8888:80"
+    depends_on:
+      - db
+    networks:
+      - ciplus_network
+
+volumes:
+  ciplus_volume_bd:
+
+
+networks:
+  ciplus_network:
+    driver: bridge

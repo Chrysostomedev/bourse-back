@@ -18,7 +18,14 @@ class PostController extends Controller
     {
         $posts = Post::query()
             ->with('author')
-            ->withCount(['likes', 'comments'])
+            ->withCount([
+                'likes' => function ($query) {
+                    $query->where('likeable_type', 'post');
+                },
+                'comments' => function ($query) {
+                    $query->where('commentable_type', 'post')->whereNull('parent_id');
+                }
+            ])
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->latest()
             ->paginate(20);
@@ -35,7 +42,14 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
-        return new PostResource($post->load('author')->loadCount(['likes', 'comments']));
+        return new PostResource($post->load('author')->loadCount([
+            'likes' => function ($query) {
+                $query->where('likeable_type', 'post');
+            },
+            'comments' => function ($query) {
+                $query->where('commentable_type', 'post')->whereNull('parent_id');
+            }
+        ]));
     }
 
     public function update(UpdatePostRequest $request, Post $post)

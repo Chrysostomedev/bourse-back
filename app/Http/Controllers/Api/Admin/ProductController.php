@@ -7,14 +7,28 @@ use App\Http\Requests\Product\ProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Services\ProductService;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function __construct(private ProductService $productService) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return ProductResource::collection(Product::latest()->get());
+        $perPage = (int) ($request->get('per_page') ?? 10);
+        $page = (int) ($request->get('page') ?? 1);
+        $search = $request->get('q');
+
+        $query = Product::query();
+
+        if ($search) {
+            $query->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+        }
+
+        $products = $query->latest()->paginate($perPage, ['*'], 'page', $page);
+
+        return ProductResource::collection($products);
     }
 
     public function store(ProductRequest $request)

@@ -7,14 +7,28 @@ use App\Http\Requests\ServiceOffering\ServiceOfferingRequest;
 use App\Http\Resources\ServiceResource;
 use App\Models\Service;
 use App\Services\ServiceOfferingService;
+use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
     public function __construct(private ServiceOfferingService $serviceOfferingService) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return ServiceResource::collection(Service::latest()->get());
+        $perPage = (int) ($request->get('per_page') ?? 10);
+        $page = (int) ($request->get('page') ?? 1);
+        $search = $request->get('q');
+
+        $query = Service::query();
+
+        if ($search) {
+            $query->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+        }
+
+        $services = $query->latest()->paginate($perPage, ['*'], 'page', $page);
+
+        return ServiceResource::collection($services);
     }
 
     public function store(ServiceOfferingRequest $request)
