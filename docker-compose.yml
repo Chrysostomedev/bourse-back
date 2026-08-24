@@ -32,7 +32,7 @@ services:
       PMA_AUTH_TYPE: cookie
       UPLOAD_LIMIT: 128M
     ports:
-      - "8070:80"
+      - "8079:80"
     depends_on:
       db_bourse:
         condition: service_healthy
@@ -46,7 +46,7 @@ services:
     container_name: bourse_container
     restart: always
     ports:
-      - "8017:8000"
+      - "8019:8000"
     volumes:
       - .:/var/www/html
     depends_on:
