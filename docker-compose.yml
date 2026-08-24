@@ -1,98 +1,74 @@
+version: "3.9"
+
 services:
-  # PHP Application
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: bourse_web
-    restart: always
-    volumes:
-      - .:/var/www
-    networks:
-      - ciplus_network
-
-  # Nginx Web Server
-  web:
-    image: nginx:alpine
-    container_name: ciplus_web
-    restart: always
-    ports:
-      - "8001:80"
-    volumes:
-      - .:/var/www
-      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
-    depends_on:
-      - app
-    networks:
-      - ciplus_network
-
-  # Database
-  db:
-    image: mariadb:10.11
-    container_name: ciplus_container_bd
+  db_bourse:
+    image: mysql:8.0
+    container_name: db_bourse
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: ciplus
-      MARIADB_DATABASE: ciplus_bd
+      MYSQL_ROOT_PASSWORD: Z2gX64PG86MQp1OmwxazAzCw
+      MYSQL_DATABASE: bourse_db
+      MYSQL_USER: bourse_user
+      MYSQL_PASSWORD: Z2gX64PG86MQp1OmwxazAzCw
     ports:
-      - "3307:3306"
+      - "3319:3306"
     volumes:
-      - ciplus_volume_bd:/var/lib/mysql
+      - bourse_data:/var/lib/mysql
     networks:
-      - ciplus_network
+      - bourse_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 10
+      timeout: 5s
 
-  # Queue Worker — traite les notifications en arrière-plan
-  queue:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: ciplus_queue
-    restart: always
-    command: php artisan queue:work --sleep=3 --tries=3 --timeout=60
-    volumes:
-      - .:/var/www
-    depends_on:
-      - app
-      - db
-    networks:
-      - ciplus_network
-
-  # Scheduler — exécute les crons Laravel (rappels, SLA, etc.)
-  scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: ciplus_scheduler
-    restart: always
-    command: sh -c "while true; do php artisan schedule:run; sleep 60; done"
-    volumes:
-      - .:/var/www
-    depends_on:
-      - app
-      - db
-    networks:
-      - ciplus_network
-
-  # PHPMyAdmin
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: ciplus_phpmyadmin
+    container_name: phpmyadmin_bourse
     restart: always
     environment:
-      PMA_HOST: db
+      PMA_HOST: db_bourse
       PMA_PORT: 3306
-      UPLOAD_LIMIT: 512M
+      PMA_AUTH_TYPE: cookie
+      UPLOAD_LIMIT: 128M
     ports:
-      - "8888:80"
+      - "8070:80"
     depends_on:
-      - db
+      db_bourse:
+        condition: service_healthy
     networks:
-      - ciplus_network
+      - bourse_network
+
+  bourse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bourse_container
+    restart: always
+    ports:
+      - "8017:8000"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db_bourse:
+        condition: service_healthy
+    networks:
+      - bourse_network
+    command: >
+      sh -c "
+      echo '🚀 Starting Laravel setup...' &&
+      composer install --no-interaction --prefer-dist &&
+
+      echo '🔗 Checking storage link...' &&
+      [ ! -L public/storage ] && php artisan storage:link || echo 'Storage link already exists' &&
+
+      echo '🔥 Starting server...' &&
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
 
 volumes:
-  ciplus_volume_bd:
-
+  bourse_data:
 
 networks:
-  ciplus_network:
+  bourse_network:
     driver: bridge
