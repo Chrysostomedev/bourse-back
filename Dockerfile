@@ -1,34 +1,33 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.4-fpm
 
-# Installation des dépendances système
-RUN apk add --no-cache \
-    git \
-    curl \
-    libpng-dev \
-    libxml2-dev \
+# Installer les dépendances et extensions nécessaires
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
     zip \
     unzip \
-    oniguruma-dev \
-    libzip-dev \
-    mysql-client
+    git \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libpq-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo_mysql pdo_pgsql pgsql zip
 
-# Installation des extensions PHP
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+WORKDIR /var/www/html
 
-# Installation de Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Configurer git safe directory pour éviter les erreurs de dubious ownership
+RUN git config --global --add safe.directory /var/www/html
 
-# Définition du répertoire de travail
-WORKDIR /var/www
+# Installer Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copie du projet
+# Copier le projet
 COPY . .
 
-# Installation des dépendances composer
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+RUN apt-get update && apt-get install -y \
+    libicu-dev \
+    && docker-php-ext-install intl
 
-# Permissions pour Laravel
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-EXPOSE 9000
-CMD ["php-fpm"]
+# Installer les dépendances Laravel
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader

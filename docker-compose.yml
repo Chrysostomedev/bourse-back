@@ -1,74 +1,54 @@
-version: "3.9"
+networks:
+    ciplus-network-shared:
+        external: true
 
 services:
-  db_bourse:
-    image: mysql:8.0
-    container_name: db_bourse
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: Z2gX64PG86MQp1OmwxazAzCw
-      MYSQL_DATABASE: bourse_db
-      MYSQL_USER: bourse_user
-      MYSQL_PASSWORD: Z2gX64PG86MQp1OmwxazAzCw
-    ports:
-      - "3319:3306"
-    volumes:
-      - bourse_data:/var/lib/mysql
-    networks:
-      - bourse_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      retries: 10
-      timeout: 5s
+    db_bourse:
+        image: mysql:8.0
+        container_name: db_bourse
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: Z2gX64PG86MQp1OmwxazAzCw
+            MYSQL_DATABASE: bourse_db
+            MYSQL_USER: bourse_user
+            MYSQL_PASSWORD: Z2gX64PG86MQp1OmwxazAzCw
+        ports:
+            - "3319:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - ciplus-network-shared
 
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: phpmyadmin_bourse
-    restart: always
-    environment:
-      PMA_HOST: db_bourse
-      PMA_PORT: 3306
-      PMA_AUTH_TYPE: cookie
-      UPLOAD_LIMIT: 128M
-    ports:
-      - "8079:80"
-    depends_on:
-      db_bourse:
-        condition: service_healthy
-    networks:
-      - bourse_network
+    phpmyadmin_bourse:
+        image: phpmyadmin:latest
+        container_name: phpmyadmin_bourse
+        restart: always
+        environment:
+            PMA_HOST: db_bourse
+            PMA_PORT: 3306
+            PMA_AUTH_TYPE: cookie
+            UPLOAD_LIMIT: 128M
+        ports:
+            - "8079:80"
+        depends_on:
+            db_bourse:
+                condition: service_healthy
+        networks:
+            - ciplus-network-shared
 
-  bourse:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: bourse_container
-    restart: always
-    ports:
-      - "8019:8000"
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      db_bourse:
-        condition: service_healthy
-    networks:
-      - bourse_network
-    command: >
-      sh -c "
-      echo '🚀 Starting Laravel setup...' &&
-      composer install --no-interaction --prefer-dist &&
-
-      echo '🔗 Checking storage link...' &&
-      [ ! -L public/storage ] && php artisan storage:link || echo 'Storage link already exists' &&
-
-      echo '🔥 Starting server...' &&
-      php artisan serve --host=0.0.0.0 --port=8000
-      "
+    bourse_back:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: bourse_back_container
+        restart: always
+        ports:
+            - "8019:8000"
+        env_file:
+            - .env
+        command: sh -c "php artisan storage:link || true && php artisan serve --host=0.0.0.0 --port=8000"
+        networks:
+            - ciplus-network-shared
 
 volumes:
-  bourse_data:
-
-networks:
-  bourse_network:
-    driver: bridge
+  mysql_data:
