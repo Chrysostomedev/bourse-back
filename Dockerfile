@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libpq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo_mysql pdo_pgsql pgsql zip
+    && docker-php-ext-install gd pdo_mysql pdo_pgsql pgsql zip bcmath
 
 WORKDIR /var/www/html
 
